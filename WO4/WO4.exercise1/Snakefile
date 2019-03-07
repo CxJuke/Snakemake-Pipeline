@@ -1,0 +1,11 @@
+rule all:
+    input:
+        "heatmap.png"
+
+rule create_heatmap:
+    input:
+        "../data/gene_ex.csv"
+    output:
+        "heatmap.png"
+    shell:
+        "Rscript ../scripts/heatmap.R {input} {output}"
