@@ -24,6 +24,8 @@ rule samtools_sort:
     output:
         "sorted_reads/{sample}.bam"
     message: "Sorting reads"
+    benchmark:
+        "benchmarks/{sample}.bam.sort.benchmark.txt"
     threads: 4
 #Sort does have thread support
     shell:
@@ -48,6 +50,8 @@ rule bcftools_call:
     output:
         "calls/all.vcf"
     message: "called bcftools"
+    benchmark:
+        "benchmarks/all.calls.benchmark.txt"
 #samtools mpileub doesn't support threads
 #bcftools call supports threads
     threads: 4
