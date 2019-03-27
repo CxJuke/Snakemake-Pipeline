@@ -1,0 +1,22 @@
+from snakemake.remote.NCBI import RemoteProvider as NCBIRemoteProvider
+NCBI = NCBIRemoteProvider(email="j.profijt@st.hanze.nl")
+
+query = '"Zika virus"[Organism] AND (("9000"[SLEN] : "20000"[SLEN]) AND ("2017/03/20"[PDAT] : "2017/03/24"[PDAT])) '
+accessions = NCBI.search(query, retmax=4)
+
+# give the accessions a file extension to help the RemoteProvider determine the
+# proper output type.
+input_files = expand("{acc}.fasta", acc=accessions)
+
+rule all:
+    input:
+        "multilineZika.fasta"
+
+rule download_and_count:
+    input:
+        NCBI.remote(input_files, db="nuccore", seq_start=5000)
+    output:
+        "multilineZika.fasta"
+    run:
+        shell("cat {input} > multilineZika.fasta")
+
