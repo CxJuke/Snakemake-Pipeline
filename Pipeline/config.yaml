@@ -1,0 +1,6 @@
+# Config file for Pathogen pipeline
+
+workdir: output_dir
+sample_dir: /data/storage/dataprocessing/
+genome_dir: /data/storage/storix2/brainsamples/human_genome/
+pathogene_dir: /data/storage/storix2/brainsamples/pathogenes/
