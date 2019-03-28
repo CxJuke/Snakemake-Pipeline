@@ -3,5 +3,5 @@
 workdir: output_dir/
 sample_dir: /data/storage/dataprocessing/rnaseq_data/Dutch_Microglia/
 genome: /data/storage/storix2/brainsamples/human_genome/complete_human_genome.fasta
-pathogen_fasta: /data/storix2/brainsamples/pathogenes/pathogens.fna
+pathogen_fasta: testdata/pathogens_head.fna
 

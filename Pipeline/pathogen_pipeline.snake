@@ -1,0 +1,15 @@
+from os.path import join
+configfile: "config.yaml"
+
+rule all:
+    input:
+        directory(join(config["workdir"], "index/"))
+
+rule bowtie_index:
+    input:
+        config["pathogen_fasta"]
+    output:
+        directory(join(config["workdir"], "index/"))
+    message: "indexing pathogen with bowtie2"
+    shell:
+        "bowtie2-build {input} {output}" 
