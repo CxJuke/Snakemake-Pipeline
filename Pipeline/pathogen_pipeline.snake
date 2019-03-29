@@ -1,15 +1,29 @@
 from os.path import join
 configfile: "config.yaml"
 
+index_dir = join(config["workdir"], "index/")
+pathogen_index = join(index_dir, "pathogen/")
+human_index = join(index_dir, "human/")
+
 rule all:
     input:
-        directory(join(config["workdir"], "index/"))
+        directory(pathogen_index)
+        directory(human_index)
 
 rule bowtie_index:
     input:
-        config["pathogen_fasta"]
+        pathogen_fa = config["pathogen_fasta"],
+        human_fa = config["human_fasta"]
     output:
-        directory(join(config["workdir"], "index/"))
+        pathogen_index = directory(pathogen_index),
+        human_index = directory(human_index)
     message: "indexing pathogen with bowtie2"
     shell:
-        "bowtie2-build {input} {output}" 
+        """
+        bowtie2-build {input.pathogen_fa} {output.pathogen_index}
+        bowtie2-build {input.human_fa} {output.human_index}  
+        """
+
+rule bowtie_to_pathogen:
+    input:
+        pathogen_index = directory(pathogen_index)
