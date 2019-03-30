@@ -1,10 +1,16 @@
+from os.path import basename
 from os.path import join
+from glob import glob
+
 configfile: "config.yaml"
 
 index_dir = join(config["workdir"], "index/")
 pathogen_index = join(index_dir, "pathogen/")
 human_index = join(index_dir, "human/")
-
+sam_dir = join(config["workdir"], "sam_output/")
+tmp = join(config["workdir"], "tmp/")
+unmapped_dir = join(config["workdir"], "Unmapped/")
+ 
 rule all:
     input:
         directory(pathogen_index)
@@ -17,13 +23,19 @@ rule bowtie_index:
     output:
         pathogen_index = directory(pathogen_index),
         human_index = directory(human_index)
-    message: "indexing pathogen with bowtie2"
+    message: "indexing genome & pathogen with bowtie2"
     shell:
         """
         bowtie2-build {input.pathogen_fa} {output.pathogen_index}
         bowtie2-build {input.human_fa} {output.human_index}  
         """
 
-rule bowtie_to_pathogen:
+rule bowtie_to_human:
     input:
-        pathogen_index = directory(pathogen_index)
+        human_index = directory(human_index)
+        samples = expand('{sample}', sample = [basename(x).split("_R1")[0] for x in glob(config["sample_dir"] + "*R1*.fastq"])
+    output:
+        r1 = '{sample}_R1.fastq'
+        r2 = '{sample}_R2.fastq'
+        unmapped = join(unmapped_dir, '{sample}.fastq')
+
