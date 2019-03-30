@@ -10,11 +10,12 @@ human_index = join(index_dir, "human/")
 sam_dir = join(config["workdir"], "sam_output/")
 tmp = join(config["workdir"], "tmp/")
 unmapped_dir = join(config["workdir"], "Unmapped/")
- 
+basenames = [basename(x).split("_R1")[0] for x in glob(config["sample_dir"] + "*R1.fastq")]
+log_dir = join(config["workdir"], "log/")
+
 rule all:
     input:
-        directory(pathogen_index)
-        directory(human_index)
+        expand("{tmp}{sample}.bowtie2.human.done", sample = basenames, tmp = tmp)
 
 rule bowtie_index:
     input:
@@ -30,16 +31,24 @@ rule bowtie_index:
         bowtie2-build {input.human_fa} {output.human_index}  
         """
 
-basenames = [basename(x).split("_R1")[0] for x in glob(config["sample_dir"] + "*R1*.fastq")]
 
 rule bowtie_to_human:
     input:
-        human_index = directory(human_index)
-        r1 = expand('{sample}_R1.fastq', sample = basenames)
-        r2 = expand('{sample}_R2.fastq', sample = basenames)
+        human_index = directory(human_index),
+        r1 = join(config["sample_dir"], "{sample}_R1.fastq"),
+        r2 = join(config["sample_dir"], "{sample}_R2.fastq")
     output:
-        unmapped = expand('{unmapped}{sample}.fastq', sample = basenames, unmapped = unmapped_dir)
-        sam = temp(expand('{sam_dir}{sample}.sam', sample = basenames, sam_dir = sam_dir))
+        unmapped = join(unmapped_dir, "{sample}.fastq"),
+        sam = join(sam_dir, "{sample}.sam"),
+        tmp = join(tmp, "{sample}.bowtie2.human.done")
+    log: join(log_dir, "bowtie2ToHuman/{sample}.log")
     shell:
-        "bowtie2 -x {input.human_index} -1 {input.r1} -2 {input.r2} --un-conc {output.unmapped} -S {output.sam} --no-unal --no-hd --no-sq -p "12"
+        """
+        (bowtie2 -x {input.human_index} -1 {input.r1} -2 {input.r2} --un-conc {output.unmapped} -S {output.sam} --no-unal --no-hd --no-sq -p 12) 2> {log}
+        touch {output.tmp}
+        """
 
+rule bowtie_to_pathogen:
+    input:
+        pathogen_index = directory(pathogen_index),
+        unmapped = join(unmapped_dir, "{sample}.fastq")
