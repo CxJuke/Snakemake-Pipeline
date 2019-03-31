@@ -21,7 +21,7 @@ single_names = join(science_names, "single_names/")
 
 rule all:
     input:
-        expand("{tmp}{sample}.bowtie2.human.done", sample = basenames, tmp = tmp)
+        "genomes.json"
 
 rule bowtie_index:
     input:
@@ -97,6 +97,31 @@ rule get_accession_numbers:
         join(accession, "{sample}.txt")
     message: "Retrieving accession numbers for file {input}"
     shell:
-        "bedtools bamtobed -i {input} > {output}
+        "bedtools bamtobed -i {input} > {output}"
 
-
+rule get_genomes:
+    input:
+        config["pathogen_fasta"]
+    output:
+        "genomes.json"
+    run:
+        import json
+        genomedict = {}
+        with open("{input}") as AllGenomes:
+            for line in AllGenomes:
+                if line.startswith(">gi"):
+                    genome = line.split(">")[1].split(",")[0]
+                    refname = genome.split("| ")[0]
+                    organism = genome.split("| ")[1]
+                    genomedict[refname] = organism
+            
+                elif line.startswith(">JPKZ") or line.startswith(">MIEF") or line.startswith(">LL") or line.startswith(">AWXF") or line.startswith("EQ") or line.startswith(">NW_") or line.startswith(">LWMK") or line.startswith(">NZ_") or line.startswith(">NC_") or line.startswith(">KT"):
+                    genome = line.split(">")[1].split(",")[0]
+                    refname = genome.split(" ")[0]
+                    organismName = genome.split(" ")[1:]
+                    organism = ' '.join(organismName)
+                    genomedict[refname] = organism
+        json = json.dumps(genomedict)
+        f = open("{output}", "w")
+        f.write(json)
+        f.close()
