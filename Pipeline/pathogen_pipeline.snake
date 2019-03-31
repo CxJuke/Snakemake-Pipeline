@@ -75,4 +75,15 @@ rule sam_to_bam:
         join(bam_dir, "{sample}.bam")
     message: "Converting {input} to {output}"
     shell:
-        "samtools view -b -S -o {output} {input}"        
+        "samtools view -b -S -o {output} {input}"
+
+rule remove_failed_to_allign:
+    input:
+        join(bam_dir, "{sample}.bam")
+    output:
+        join(mapped_bam, "{sample}mapped.bam"
+    message: "removing failed to allign for file {input}"
+    shell:
+        "samtools view -b -F 4 {input} > {output}"
+
+
