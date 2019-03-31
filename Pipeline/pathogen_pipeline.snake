@@ -37,18 +37,18 @@ rule bowtie_to_human:
         human_index = directory(human_index),
         r1 = join(config["sample_dir"], "{sample}_R1.fastq"),
         r2 = join(config["sample_dir"], "{sample}_R2.fastq")
+    params:
+        unmapped = join(unmapped_dir, "{sample}_%.fastq")
     output:
-        unmapped = join(unmapped_dir, "{sample}.fastq"),
+        unm_r1 = join(unmapped_dir, "{sample}_1.fastq"),
+        unm_r2 = join(unmapped_dir, "{sample}_2.fastq"),
         sam = join(sam_dir, "{sample}.sam"),
         tmp = join(tmp, "{sample}.bowtie2.human.done")
-    log: join(log_dir, "bowtie2ToHuman/{sample}.log")
+    log: join(log_dir, "{sample}_human_run.log")
+    message: "Running Bowtie2 for file {input.r1} against the human genome"
     shell:
         """
-        (bowtie2 -x {input.human_index} -1 {input.r1} -2 {input.r2} --un-conc {output.unmapped} -S {output.sam} --no-unal --no-hd --no-sq -p 12) 2> {log}
+        (bowtie2 -x {input.human_index} -1 {input.r1} -2 {input.r2} --un-conc {params.unmapped} -S {output.sam} --no-unal --no-hd --no-sq -p 12) 2> {log}
         touch {output.tmp}
         """
 
-rule bowtie_to_pathogen:
-    input:
-        pathogen_index = directory(pathogen_index),
-        unmapped = join(unmapped_dir, "{sample}.fastq")
