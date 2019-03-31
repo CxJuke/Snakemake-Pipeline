@@ -14,6 +14,10 @@ basenames = [basename(x).split("_R1")[0] for x in glob(config["sample_dir"] + "*
 log_dir = join(config["workdir"], "log/")
 bam_dir = join(config["workdir"], "bam_output/"
 mapped_bam = join(bam_dir, "mapped_bam/")
+results = join(config["workdir"], "results/")
+accession = join(results, "accession_numbers/")
+science_names = join(results, "scientific_names/")
+single_names = join(science_names, "single_names/")
 
 rule all:
     input:
@@ -85,5 +89,14 @@ rule remove_failed_to_allign:
     message: "removing failed to allign for file {input}"
     shell:
         "samtools view -b -F 4 {input} > {output}"
+
+rule get_accession_numbers:
+    input:
+        join(mapped_bam, "{sample}mapped.bam")
+    output:
+        join(accession, "{sample}.txt")
+    message: "Retrieving accession numbers for file {input}"
+    shell:
+        "bedtools bamtobed -i {input} > {output}
 
 
