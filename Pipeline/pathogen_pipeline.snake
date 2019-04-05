@@ -54,7 +54,7 @@ rule bowtie_to_human:
     message: "Running Bowtie2 for file {input.r1} against the human genome"
     shell:
         """
-        (bowtie2 -x {input.human_index} -1 {input.r1} -2 {input.r2} --un-conc {params.unmapped} -S {output.sam} --no-unal --no-hd --no-sq -p 12) 2> {log}
+        (bowtie2 -x {input.human_index} -1 {input.r1} -2 {input.r2} --un-conc {params.unmapped} -S {output.sam} --no-unal --no-hd --no-sq -p 32) 2> {log}
         touch {output.tmp}
         """
 
@@ -69,7 +69,7 @@ rule bowtie_to_pathogens:
     message: "Running Bowtie2 for file {input.unm_r1} against the pathogens"
     shell:
         """
-        (bowtie2 -x {input.pathogen_index} -1 {input.unm_r1} -2 {input.unm_r2} -S {output.sam} -p 12) 2> {log}
+        (bowtie2 -x {input.pathogen_index} -1 {input.unm_r1} -2 {input.unm_r2} -S {output.sam} -p 32) 2> {log}
         """
 
 rule sam_to_bam:
@@ -85,43 +85,37 @@ rule remove_failed_to_allign:
     input:
         join(bam_dir, "{sample}.bam")
     output:
-        join(mapped_bam, "{sample}mapped.bam"
+        join(mapped_bam, "{sample}.bam"
     message: "removing failed to allign for file {input}"
     shell:
         "samtools view -b -F 4 {input} > {output}"
 
-rule get_accession_numbers:
+rule bam_to_bed:
     input:
-        join(mapped_bam, "{sample}mapped.bam")
+        join(mapped_bam, "{sample}.bam")
     output:
-        join(accession, "{sample}.txt")
-    message: "Retrieving accession numbers for file {input}"
+        join(bed_dir, "{sample}.bed")
+    log: join(log_dir, "{sample}_bamtobed.log"
+    message: "converting mapped bam {input} to bed {output}"
     shell:
-        "bedtools bamtobed -i {input} > {output}"
+        "(bedtools bamtobed -i {input} > {output}) 2> {log}"
 
-rule get_genomes:
+rule pileup:
     input:
-        config["pathogen_fasta"]
+        join(mapped_bam, "{sample}.bam")
     output:
-        "genomes.json"
-    run:
-        import json
-        genomedict = {}
-        with open("{input}") as AllGenomes:
-            for line in AllGenomes:
-                if line.startswith(">gi"):
-                    genome = line.split(">")[1].split(",")[0]
-                    refname = genome.split("| ")[0]
-                    organism = genome.split("| ")[1]
-                    genomedict[refname] = organism
-            
-                elif line.startswith(">JPKZ") or line.startswith(">MIEF") or line.startswith(">LL") or line.startswith(">AWXF") or line.startswith("EQ") or line.startswith(">NW_") or line.startswith(">LWMK") or line.startswith(">NZ_") or line.startswith(">NC_") or line.startswith(">KT"):
-                    genome = line.split(">")[1].split(",")[0]
-                    refname = genome.split(" ")[0]
-                    organismName = genome.split(" ")[1:]
-                    organism = ' '.join(organismName)
-                    genomedict[refname] = organism
-        json = json.dumps(genomedict)
-        f = open("{output}", "w")
-        f.write(json)
-        f.close()
+        join(bbmap_dir, "{sample}_accession.txt"
+    message: "genarating accession numbers"
+    shell:
+        "./scripts/pileup.sh in={input} out={output}"
+
+rule calculate_accession:
+    input:
+        join(mapped_bam, "{sample}.bam")
+    output:
+        join(accession, "sample.txt")
+    message: "calculating accession numbers for {input}"
+    shell:
+        "samtools view {input} -c -o {output}"
+
+rule gene_set_var_anlysis 
