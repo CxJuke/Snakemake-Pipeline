@@ -46,9 +46,13 @@ snakemake --snakefile pathogen_run.smk
 ## Configuration
 
 Configuration is split up in 4 sections
+
 1. Run config
+
 2. Data locations
+
 3. Script locations
+
 4. Constants
 
 ### Run config
