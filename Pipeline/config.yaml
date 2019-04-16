@@ -1,17 +1,21 @@
 # Config file for Pathogen pipeline
 
+## Run config
 threads_max: 1
-workdir: output_dir/
+
+## Data Locations
 sample_dir: testdata/testsamples/
 pathogen_fasta: testdata/pathogens_head.fna
 human_fasta: testdata/complete_human_genome.fasta
-genome_dict_obj: output_dir/genomedict.pkl
 
+## Script config
 get_genomes: scripts/get_genomes.py
+genome_dict_obj: output_dir/genomedict.pkl
 accession_to_name: scripts/accession_to_name.py
 
 ## Constants, can be changed to preference but not recommended
 
+workdir: output_dir/
 human_index: output_dir/index/human/
 pathogen_index: output_dir/index/pathogen/
 sam_dir: output_dir/sam_output/
