@@ -25,24 +25,36 @@ rule all:
     input:
         expand(join(single_names, "{sample}"), sample = basenames)
 
-rule bowtie_index:
+rule bowtie_index_human:
     input:
-        pathogen_fa = config["pathogen_fasta"],
         human_fa = config["human_fasta"]
     output:
-        pathogen_index = directory(pathogen_index),
         human_index = directory(human_index)
-    message: "indexing genome & pathogen with bowtie2"
+    threads: config["threads_max"]
+    message: "indexing genome with bowtie2"
+    log: 
+        join(log_dir, "bowtie_index_human.log")
     shell:
         """
-        bowtie2-build {input.pathogen_fa} {output.pathogen_index} &
-        bowtie2-build {input.human_fa} {output.human_index}  
+        (bowtie2-build --threads {threads} {input.human_fa} {output.human_index} ) 2> {log}
         """
-
+rule bowtie_index_pathogen:
+    input:
+        pathogen_fa = config["pathogen_fasta"]
+    output:
+        pathogen_index = directory(pathogen_index)
+    threads: config["threads_max"]
+    message: "indexing pathogen with bowtie2"
+    log: 
+       join(log_dir, "bowtie_index_pathogen.log")
+    shell:
+        """
+        (bowtie2-build --threads {threads} {input.pathogen_fa} {output.pathogen_index} ) 2> {log} 
+        """
 
 rule bowtie_to_human:
     input:
-        human_index = directory(human_index),
+        human_index = human_index,
         r1 = join(config["sample_dir"], "{sample}_R1.fastq"),
         r2 = join(config["sample_dir"], "{sample}_R2.fastq")
     params:
@@ -50,26 +62,28 @@ rule bowtie_to_human:
     output:
         unm_r1 = join(unmapped_dir, "{sample}_1.fastq"),
         unm_r2 = join(unmapped_dir, "{sample}_2.fastq"),
-        sam = join(tmp, "{sample}.sam"),
+        sam = join(tmp, "{sample}.sam")
+    threads: config["threads_max"]
     log: join(log_dir, "{sample}_human_run.log")
     message: "Running Bowtie2 for file {input.r1} against the human genome"
     shell:
         """
-        (bowtie2 -x {input.human_index} -1 {input.r1} -2 {input.r2} --un-conc {params.unmapped} -S {output.sam} --no-unal --no-hd --no-sq -p 32) 2> {log}
+        (bowtie2 -p {threads} -x {input.human_index} -1 {input.r1} -2 {input.r2} --un-conc {params.unmapped} -S {output.sam} --no-unal --no-hd --no-sq -p 32) 2> {log}
         """
 
 rule bowtie_to_pathogens:
     input:
-        pathogen_index = directory(pathogen_index),
+        pathogen_index = pathogen_index,
         unm_r1 = join(unmapped_dir, "{sample}_1.fastq"),
         unm_r2 = join(unmapped_dir, "{sample}_2.fastq")
     output:
         sam = join(sam_dir, "{sample}.sam")
+    threads: config["threads_max"]
     log: join(log_dir, "{sample}_pathogen_run.log")
     message: "Running Bowtie2 for file {input.unm_r1} against the pathogens"
     shell:
         """
-        (bowtie2 -x {input.pathogen_index} -1 {input.unm_r1} -2 {input.unm_r2} -S {output.sam} -p 32) 2> {log}
+        (bowtie2 -p {threads} -x {input.pathogen_index} -1 {input.unm_r1} -2 {input.unm_r2} -S {output.sam} -p 32) 2> {log}
         """
 
 rule sam_to_bam:

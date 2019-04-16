@@ -1,5 +1,6 @@
 # Config file for Pathogen pipeline
 
+threads_max: 8
 workdir: output_dir/
 sample_dir: testdata/testsamples/
 pathogen_fasta: testdata/pathogens_head.fna
