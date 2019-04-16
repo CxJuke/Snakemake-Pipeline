@@ -4,7 +4,7 @@ Identifying pathogens in human post mortem brain.
 
 Using a existing pipline converted to snakemake.
 
-![DAG of Pathogen Pipeline](Pipline/dag1.png)
+![DAG of Pathogen Pipeline](Pipeline/dag1.png)
 
 ## Getting Started
 
