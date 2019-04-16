@@ -20,9 +20,10 @@ science_names = join(results, "scientific_names/")
 single_names = join(science_names, "single_names/")
 bed_dir = join(config["workdir"], "bed/")
 bbmap_dir = join(config["workdir"], "bbmap/")
+
 rule all:
     input:
-        expand(join(unmapped_dir, "{sample}_{n}.fastq"), sample = basenames, n = [1 ,2])
+        expand(join(single_names, "{sample}"), sample = basenames)
 
 rule bowtie_index:
     input:
@@ -89,30 +90,34 @@ rule remove_failed_to_allign:
     shell:
         "samtools view -b -F 4 {input} > {output}"
 
-rule bam_to_bed:
+rule create_accession_numbers:
     input:
         join(mapped_bam, "{sample}.bam")
     output:
-        join(bed_dir, "{sample}.bed")
+        join(accession, "{sample}.txt")
     log: join(log_dir, "{sample}_bamtobed.log")
     message: "converting mapped bam {input} to bed {output}"
     shell:
         "(bedtools bamtobed -i {input} > {output}) 2> {log}"
 
-rule pileup:
+rule make_genome_dictionary:
     input:
-        join(mapped_bam, "{sample}.bam")
+        config["pathogen_fasta"]
     output:
-        join(bbmap_dir, "{sample}_accession.txt")
-    message: "genarating accession numbers"
-    shell:
-        "./scripts/pileup.sh in={input} out={output}"
+        config["genome_dict_obj"]
+    message: "creating {output}"
+    script:
+        'scripts/get_genomes.py'
 
-rule calculate_accession:
+
+rule accesson_to_name:
     input:
-        join(mapped_bam, "{sample}.bam")
+        asc = join(accession, "{sample}.txt"),
+        dict = config["genome_dict_obj"]
     output:
-        join(accession, "{sample}.txt")
-    message: "calculating accession numbers for {input}"
-    shell:
-        "samtools view {input} -c -o {output}"
+        sci = join(science_names, "{sample}"),
+        sgl = join(single_names, "{sample}")
+    message: "Converting accession numbers in {input.asc} with dict {input.dict}, to science names in {output.sci} and single names as {output.sgl}"
+    script:
+        'scripts/accession_to_name.py'
+
