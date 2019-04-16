@@ -4,36 +4,21 @@ from glob import glob
 
 configfile: "config.yaml"
 
-index_dir = join(config["workdir"], "index/")
-pathogen_index = join(index_dir, "pathogen/")
-human_index = join(index_dir, "human/")
-sam_dir = join(config["workdir"], "sam_output/")
-tmp = join(config["workdir"], "tmp/")
-unmapped_dir = join(config["workdir"], "Unmapped/")
 basenames = [basename(x).split("_R1")[0] for x in glob(config["sample_dir"] + "*R1.fastq")]
-log_dir = join(config["workdir"], "log/")
-bam_dir = join(config["workdir"], "bam_output/")
-mapped_bam = join(bam_dir, "mapped_bam/")
-results = join(config["workdir"], "results/")
-accession = join(results, "accession_numbers/")
-science_names = join(results, "scientific_names/")
-single_names = join(science_names, "single_names/")
-bed_dir = join(config["workdir"], "bed/")
-bbmap_dir = join(config["workdir"], "bbmap/")
-
+unmapped_dir = config["unmapped_dir"]
 rule all:
     input:
-        expand(join(single_names, "{sample}"), sample = basenames)
+        expand(join(config["single_names"], "{sample}"), sample = basenames)
 
 rule bowtie_index_human:
     input:
         human_fa = config["human_fasta"]
     output:
-        human_index = directory(human_index)
+        human_index = directory(config["human_index"])
     threads: config["threads_max"]
     message: "indexing genome with bowtie2"
     log: 
-        join(log_dir, "bowtie_index_human.log")
+        join(config["log_dir"], "bowtie_index_human.log")
     shell:
         """
         (bowtie2-build --threads {threads} {input.human_fa} {output.human_index} ) 2> {log}
@@ -42,11 +27,11 @@ rule bowtie_index_pathogen:
     input:
         pathogen_fa = config["pathogen_fasta"]
     output:
-        pathogen_index = directory(pathogen_index)
+        pathogen_index = directory(config["pathogen_index"])
     threads: config["threads_max"]
     message: "indexing pathogen with bowtie2"
     log: 
-       join(log_dir, "bowtie_index_pathogen.log")
+       join(config["log_dir"], "bowtie_index_pathogen.log")
     shell:
         """
         (bowtie2-build --threads {threads} {input.pathogen_fa} {output.pathogen_index} ) 2> {log} 
@@ -54,7 +39,7 @@ rule bowtie_index_pathogen:
 
 rule bowtie_to_human:
     input:
-        human_index = human_index,
+        human_index = config["human_index"],
         r1 = join(config["sample_dir"], "{sample}_R1.fastq"),
         r2 = join(config["sample_dir"], "{sample}_R2.fastq")
     params:
@@ -62,9 +47,9 @@ rule bowtie_to_human:
     output:
         unm_r1 = join(unmapped_dir, "{sample}_1.fastq"),
         unm_r2 = join(unmapped_dir, "{sample}_2.fastq"),
-        sam = join(tmp, "{sample}.sam")
+        sam = join(config["tmp"], "{sample}.sam")
     threads: config["threads_max"]
-    log: join(log_dir, "{sample}_human_run.log")
+    log: join(config["log_dir"], "{sample}_human_run.log")
     message: "Running Bowtie2 for file {input.r1} against the human genome"
     shell:
         """
@@ -73,13 +58,13 @@ rule bowtie_to_human:
 
 rule bowtie_to_pathogens:
     input:
-        pathogen_index = pathogen_index,
+        pathogen_index = config["pathogen_index"],
         unm_r1 = join(unmapped_dir, "{sample}_1.fastq"),
         unm_r2 = join(unmapped_dir, "{sample}_2.fastq")
     output:
-        sam = join(sam_dir, "{sample}.sam")
+        sam = join(config["sam_dir"], "{sample}.sam")
     threads: config["threads_max"]
-    log: join(log_dir, "{sample}_pathogen_run.log")
+    log: join(config["log_dir"], "{sample}_pathogen_run.log")
     message: "Running Bowtie2 for file {input.unm_r1} against the pathogens"
     shell:
         """
@@ -88,28 +73,28 @@ rule bowtie_to_pathogens:
 
 rule sam_to_bam:
     input:
-        join(sam_dir, "{sample}.sam")
+        join(config["sam_dir"], "{sample}.sam")
     output:
-        join(bam_dir, "{sample}.bam")
+        join(config["bam_dir"], "{sample}.bam")
     message: "Converting {input} to {output}"
     shell:
         "samtools view -b -S -o {output} {input}"
 
 rule remove_failed_to_allign:
     input:
-        join(bam_dir, "{sample}.bam")
+        join(config["bam_dir"], "{sample}.bam")
     output:
-        join(mapped_bam, "{sample}.bam")
+        join(config["mapped_bam"], "{sample}.bam")
     message: "removing failed to allign for file {input}"
     shell:
         "samtools view -b -F 4 {input} > {output}"
 
 rule create_accession_numbers:
     input:
-        join(mapped_bam, "{sample}.bam")
+        join(config["mapped_bam"], "{sample}.bam")
     output:
-        join(accession, "{sample}.txt")
-    log: join(log_dir, "{sample}_bamtobed.log")
+        join(config["accession"], "{sample}.txt")
+    log: join(config["log_dir"], "{sample}_bamtobed.log")
     message: "converting mapped bam {input} to bed {output}"
     shell:
         "(bedtools bamtobed -i {input} > {output}) 2> {log}"
@@ -126,11 +111,11 @@ rule make_genome_dictionary:
 
 rule accesson_to_name:
     input:
-        asc = join(accession, "{sample}.txt"),
+        asc = join(config["accession"], "{sample}.txt"),
         dict = config["genome_dict_obj"]
     output:
-        sci = join(science_names, "{sample}"),
-        sgl = join(single_names, "{sample}")
+        sci = join(config["science_names"], "{sample}"),
+        sgl = join(config["single_names"], "{sample}")
     message: "Converting accession numbers in {input.asc} with dict {input.dict}, to science names in {output.sci} and single names as {output.sgl}"
     script:
         'scripts/accession_to_name.py'

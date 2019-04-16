@@ -1,8 +1,32 @@
 # Config file for Pathogen pipeline
 
-threads_max: 8
+threads_max: 1
 workdir: output_dir/
 sample_dir: testdata/testsamples/
 pathogen_fasta: testdata/pathogens_head.fna
 human_fasta: testdata/complete_human_genome.fasta
 genome_dict_obj: output_dir/genomedict.pkl
+
+## Constants, can be changed to preference but not recommended
+
+human_index: output_dir/index/human/
+pathogen_index: output_dir/index/pathogen/
+sam_dir: output_dir/sam_output/
+tmp: output_dir/tmp/
+unmapped_dir: output_dir/Unmapped/
+log_dir: output_dir/log/
+bam_dir: output_dir/bam_output/
+mapped_bam: output_dir/bam_output/mapped_bam/
+results: output_dir/results/
+accession: output_dir/results/accession_numbers/
+science_names: output_dir/results/scientific_names/
+single_names: output_dir/results/scientific_names/single_names/
+
+
+
+
+
+
+
+
+
