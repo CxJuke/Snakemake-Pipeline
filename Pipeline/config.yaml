@@ -7,6 +7,9 @@ pathogen_fasta: testdata/pathogens_head.fna
 human_fasta: testdata/complete_human_genome.fasta
 genome_dict_obj: output_dir/genomedict.pkl
 
+get_genomes: scripts/get_genomes.py
+accession_to_name: scripts/accession_to_name.py
+
 ## Constants, can be changed to preference but not recommended
 
 human_index: output_dir/index/human/

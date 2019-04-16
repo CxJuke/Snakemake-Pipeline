@@ -76,18 +76,20 @@ rule sam_to_bam:
         join(config["sam_dir"], "{sample}.sam")
     output:
         join(config["bam_dir"], "{sample}.bam")
+    log: join(config["log_dir"], "samtobam_{sample}.log")
     message: "Converting {input} to {output}"
     shell:
-        "samtools view -b -S -o {output} {input}"
+        "(samtools view -b -S -o {output} {input}) 2> {log}"
 
 rule remove_failed_to_allign:
     input:
         join(config["bam_dir"], "{sample}.bam")
     output:
         join(config["mapped_bam"], "{sample}.bam")
+    log: join(config["log_dir"], "failed_allignment_{sample}.log")
     message: "removing failed to allign for file {input}"
     shell:
-        "samtools view -b -F 4 {input} > {output}"
+        "(samtools view -b -F 4 {input} > {output}) 2> {log}"
 
 rule create_accession_numbers:
     input:
@@ -106,7 +108,7 @@ rule make_genome_dictionary:
         config["genome_dict_obj"]
     message: "creating {output}"
     script:
-        'scripts/get_genomes.py'
+        config["get_genomes"]
 
 
 rule accesson_to_name:
@@ -116,7 +118,8 @@ rule accesson_to_name:
     output:
         sci = join(config["science_names"], "{sample}"),
         sgl = join(config["single_names"], "{sample}")
+        
     message: "Converting accession numbers in {input.asc} with dict {input.dict}, to science names in {output.sci} and single names as {output.sgl}"
     script:
-        'scripts/accession_to_name.py'
+        config["accession_to_name"]
 
