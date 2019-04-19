@@ -19,7 +19,7 @@ rule bowtie_to_human:
     message: "Running Bowtie2 for file {input.r1} against the human genome"
     shell:
         """
-        (bowtie2 -p {threads} -x {input.human_index} -1 {input.r1} -2 {input.r2} --un-conc {params.unmapped} -S {output.sam} --no-unal --no-hd --no-sq -p 32) 2> {log}
+        (bowtie2 -p {threads} -x {input.human_index} -1 {input.r1} -2 {input.r2} --un-conc {params.unmapped} -S {output.sam} --no-unal --no-hd --no-sq) 2> {log}
         """
 
 rule bowtie_to_pathogens:
@@ -34,5 +34,5 @@ rule bowtie_to_pathogens:
     message: "Running Bowtie2 for file {input.unm_r1} against the pathogens"
     shell:
         """
-        (bowtie2 -p {threads} -x {input.pathogen_index} -1 {input.unm_r1} -2 {input.unm_r2} -S {output.sam} -p 32) 2> {log}
+        (bowtie2 -p {threads} -x {input.pathogen_index} -1 {input.unm_r1} -2 {input.unm_r2} -S {output.sam}) 2> {log}
         """
