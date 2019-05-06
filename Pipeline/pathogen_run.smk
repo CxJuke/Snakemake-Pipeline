@@ -18,4 +18,4 @@ basenames = [basename(x).split("_R1")[0] for x in glob(config["sample_dir"] + "*
 	
 rule all:
 	input:
-		expand(join(config["workdir"], "pileup/{sample}.txt"), sample = config["basenames"])
+		join(config["results"], "barplot.png")

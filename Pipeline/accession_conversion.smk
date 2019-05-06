@@ -14,7 +14,7 @@ rule make_genome_dictionary:
 
 rule accesson_to_name:
     input:
-        asc = join(config["accession"], "{sample}.txt"),
+        asc = join(config["accession"], "pileup/{sample}_onlyCoverage.csv"),
         dict = config["genome_dict_obj"]
     output:
         sci = join(config["science_names"], "{sample}"),

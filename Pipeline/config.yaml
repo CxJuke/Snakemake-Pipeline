@@ -14,6 +14,8 @@ genome_dict_obj: output_dir/genomedict.pkl
 accession_to_name: scripts/accession_to_name.py
 pileup: /homes/jprofijt/Programs/bbmap/pileup.sh
 pileup_mem: 20g
+exclude_py: scripts/exclude_0_Allignment.py
+get_total: scripts/calculate_unidentified.py
 
 ## Constants, can be changed to preference but not recommended
 
@@ -30,6 +32,11 @@ results: output_dir/results/
 accession: output_dir/results/accession_numbers/
 science_names: output_dir/results/scientific_names/
 single_names: output_dir/results/scientific_names/single_names/
+
+## result
+## Image size in pixels
+result_height: 800
+result_width: 1200
 
 ## basenames
 
