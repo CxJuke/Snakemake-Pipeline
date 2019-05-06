@@ -1,17 +1,19 @@
 # Config file for Pathogen pipeline
 
 ## Run config
-threads_max: 1
+threads_max: 40
 
 ## Data Locations
-sample_dir: testdata/testsamples/
-pathogen_fasta: testdata/pathogens_head.fna
-human_fasta: testdata/complete_human_genome.fasta
+sample_dir: /data/storage/dataprocessing/rnaseq_data/Dutch_Microglia/
+pathogen_fasta: /data/storix2/brainsamples/pathogenes/pathogens.fna
+human_fasta: /data/storix2/brainsamples/human_genome/complete_human_genome.fasta
 
 ## Script config
 get_genomes: scripts/get_genomes.py
 genome_dict_obj: output_dir/genomedict.pkl
 accession_to_name: scripts/accession_to_name.py
+pileup: /homes/jprofijt/Programs/bbmap/pileup.sh
+pileup_mem: 20g
 
 ## Constants, can be changed to preference but not recommended
 
@@ -29,6 +31,15 @@ accession: output_dir/results/accession_numbers/
 science_names: output_dir/results/scientific_names/
 single_names: output_dir/results/scientific_names/single_names/
 
+## basenames
+
+basenames:
+    -   S15018_GTTTCG_L007
+    -   S12112_GATCAG_L007
+    -   S14005_GGCTAC_L007
+    -   S12082_ACTTGA_L007
+    -   S1210100_TAGCTT_L007
+    -   S12048_ATCACG_L007
 
 
 

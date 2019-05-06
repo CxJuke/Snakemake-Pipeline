@@ -12,9 +12,10 @@ include: "bowtie2-build.smk"
 include: "bowtie_index.smk"
 include: "conversion_tools.smk"
 include: "accession_conversion.smk"
+include: "visualize.smk"
 	
 basenames = [basename(x).split("_R1")[0] for x in glob(config["sample_dir"] + "*R1.fastq")]
 	
 rule all:
 	input:
-		expand(join(config["single_names"], "{sample}"), sample = basenames)
+		expand(join(config["workdir"], "pileup/{sample}.txt"), sample = config["basenames"])
