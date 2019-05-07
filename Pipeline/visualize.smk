@@ -17,8 +17,7 @@ rule remove_zero:
     input:
         join(config["workdir"], "pileup/{sample}.txt")
     output:
-        join(config["workdir"], "results/alligned/{sample}"),
-        join(config["tmp"], "{sample}.zero")
+        join(config["workdir"], "results/alligned/{sample}")
 
     script:
         config["exclude_py"]
@@ -43,8 +42,7 @@ rule get_total_unidentified:
 
 rule visualize:
     input:
-        indir = join(config["workdir"], "results/alligned/"),
-        touch = expand(join(config["tmp"], "{sample}.zero"), sample=config["basenames"])
+        expand(join(config["workdir"], "results/alligned/{sample}"), sample=config["basenames"]),
     params:
         height = config["result_height"],
         width = config["result_width"]
@@ -55,10 +53,10 @@ rule visualize:
         R("""
         library(ggplot2)
         png("{output}", width = {params.width}, height = {params.height}, units = 'px')
-        li <- list.files('{input.indir}')
+        li <- unlist(strsplit(('{input}', split = " ")))
         vector <- c()
         for (file in li) {
-        f <- read.csv(paste('Pipeline/Rtest/', file, sep = ""), sep = "\t")
+        f <- read.csv(file, sep = "\t")
   
         len <- f$Covered_bases
         len <- length(len)
@@ -75,6 +73,10 @@ rule visualize:
             position = position_dodge(0.9), size=3.5)+
         theme_minimal()+
         theme(axis.text.x=element_blank())
+
+        p
+
+        dev.off()
         """)
     
 

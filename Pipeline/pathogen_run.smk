@@ -14,7 +14,7 @@ include: "conversion_tools.smk"
 include: "accession_conversion.smk"
 include: "visualize.smk"
 	
-basenames = [basename(x).split("_R1")[0] for x in glob(config["sample_dir"] + "*R1.fastq")]
+#basenames = [basename(x).split("_R1")[0] for x in glob(config["sample_dir"] + "*R1.fastq")]
 	
 rule all:
 	input:

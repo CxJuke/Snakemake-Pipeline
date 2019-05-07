@@ -3,7 +3,7 @@ def create_done(out_file):
     f.close()
 
 
-def remove_zero(f, out_file, dummy):
+def remove_zero(f, out_file):
     """
     This function removes the lines that have 0% coverage.
     When the fifth element is 0.0000, it means the coverage is 0%.
@@ -26,7 +26,6 @@ def remove_zero(f, out_file, dummy):
         else:
 			#if the fifth element something else, write the line back
             open_out_file.write(line)
-    create_done(dummy)
     
 
-remove_zero(snakemake.input[0], snakemake.output[0], snakemake.output[1])
+remove_zero(snakemake.input[0], snakemake.output[0])
