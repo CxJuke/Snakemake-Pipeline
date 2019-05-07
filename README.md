@@ -4,7 +4,9 @@ Identifying pathogens in human post mortem brain.
 
 Using a existing pipline converted to snakemake.
 
-![DAG of Pathogen Pipeline](Pipeline/dag1.png)
+![DAG of Pathogen Pipeline](Pipeline/Final_DAG.png)
+
+![Graphical result](Pipeline/barplot.png)
 
 ## Getting Started
 
@@ -79,6 +81,11 @@ defines script locations
 get_genomes: path to get_genomes.py, default in scripts
 genome_dict_obj: location where generated genome dict is stored
 accession_to_name: path to accession_to_name.py, default in scripts
+pileup: path to pileup.sh in bbmap install
+pileup_mem: how much memory is allocated to the pileup runs
+exclude_py: path to exclude_0_Allignment.py
+get_total: path to calculate_unidentified.py
+R_script: path to barplot R script
 ```
 ### Constants
 
