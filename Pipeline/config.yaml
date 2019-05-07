@@ -16,6 +16,7 @@ pileup: /homes/jprofijt/Programs/bbmap/pileup.sh
 pileup_mem: 20g
 exclude_py: scripts/exclude_0_Allignment.py
 get_total: scripts/calculate_unidentified.py
+R_script: scripts/createBarplot.R
 
 ## Constants, can be changed to preference but not recommended
 

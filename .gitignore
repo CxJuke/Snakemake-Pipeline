@@ -3,3 +3,4 @@ venv/
 **/.snakemake/
 **/data/
 **/output_dir/
+.vscode/
