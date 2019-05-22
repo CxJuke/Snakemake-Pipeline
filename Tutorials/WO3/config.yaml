@@ -1,4 +1,0 @@
-#configfile config.yaml
-genome: data/genome
-ext: .fa
-samples:
