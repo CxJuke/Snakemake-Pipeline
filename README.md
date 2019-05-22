@@ -4,9 +4,9 @@ Identifying pathogens in human post mortem brain.
 
 Using a existing pipline converted to snakemake.
 
-![DAG of Pathogen Pipeline](Pipeline/Final_DAG.png)
+![DAG of Pathogen Pipeline](src/Final_DAG.png)
 
-![Graphical result](Pipeline/barplot.png)
+![Graphical result](src/barplot.png)
 
 ## Getting Started
 
@@ -41,7 +41,7 @@ pip3 install snakemake
 
 run pipline
 ```
-cd Pipline
+cd src
 snakemake --snakefile pathogen_run.smk
 ```
 
